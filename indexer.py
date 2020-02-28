@@ -16,34 +16,34 @@ class Indexer():
             "html-header-file": None, 
             "html-footer-file": None, 
             "note-item-file": None,
-            "note-category-file": None
-                         }
+            "note-category-file": None,
+            "head-enabled": None,
+            "head-start": None,
+            "head-end": None,
+            "header-enabled": None,
+            "header-start": None,
+            "header-end": None,
+            "footer-enabled": None,
+            "footer-start": None,
+            "footer-end": None
+        }
         # Set which settings are essential to set
         self.essential_settings = [
             "html-folder", 
             "index-file",
             "note-item-file",
             "note-category-file"
-                        ]
-
-        # Set what the markers look for
-        self.markers = {
-            "html-head-file": ('<head>', '</head>'),
-            "html-header-file": ('<body>', None),
-            "html-footer-file": ('</body>', None)
-        }   
-
-        # A list of what operations are enabled in order (IMPORTANT)
+        ]
+        # A list of operations 
         self.operations = [
-            "html-head-file",
-            "html-header-file",
-            "html-footer-file"
+            "head",
+            "header",
+            "footer"
         ]
         
         # Process config file before beginnning indexing
         if(self.process_config_file()):
             # Start indexing
-
             self.files_to_process = self.get_files_to_index()
 
             for file in self.files_to_process:
@@ -53,9 +53,6 @@ class Indexer():
                     print("Indexed \"{}\" Successfully".format(file))
                 except:
                     print("One or more errors while processing \"{}\".  It will not be indexed.".format(file))
-
-
-
         else:
             # File was not processed correclty so exit
             print("One or more errors occurred. Exiting...")
@@ -96,7 +93,7 @@ class Indexer():
         
         # Check which operations are enabled in the config
         for op in self.operations:
-            if op not in self.settings or self.settings[op] == None:
+            if self.settings[op + '-enabled'] != "True":
                 self.operations.remove(op)
 
         # Return whether the config was properly parsed or not
@@ -215,26 +212,27 @@ class Indexer():
         temp_filename = str(filename+'.tmp')
         temp_file = open(temp_filename, 'w')
         
-        operations_to_do = self.operations.copy()
-        markers_to_find = self.markers.copy()
+        # Keep track of the current operation
+        operation_number = 0
         
         temp_file.write("<!--*INDEXED*-->\n")
 
         # Iterate through and parse the file
         # Doing one operation at a time
-        num_line = 0
-        for line in old_file:
-            
-            current_line = line.strip()
-            if len(markers_to_find) > 0 and markers_to_find[operations_to_do[0]][0] in current_line:
+        while(operation_number < len(self.operations)):
+            # Read line from file
+            current_line = old_file.readline().strip()
+
+            # Find the starting point of the operation 
+            if self.settings[op + '-start'] in current_line:
                 # Set the current operation to the next to do
-                op = operations_to_do[0]
+                op = operations_to_do[operation_number]
                 # Set the beginnning marker
-                marker_s = markers_to_find[operations_to_do[0]][0]
+                marker_s = self.settings[op +'-start']
                 # Set the end marker
-                marker_e = markers_to_find[operations_to_do[0]][1]
+                marker_e = self.settings[op +'-end']
                 # Open the template for the operation
-                template = open(str(self.resource_folder + self.settings[op]), 'r')
+                template = open(str(self.resource_folder + self.settings["html-" + op + "-file"]), 'r')
 
                 # Split the line off of the marker
                 split_line = current_line.split(marker_s)
@@ -264,9 +262,8 @@ class Indexer():
                         if marker_e in old_line:
                             end_marker_found = True
 
-                # Remove the marker and operation since we have completed them
-                del markers_to_find[op]
-                operations_to_do.remove(op)
+                # Move to the next operation
+                operation_numer += 1
             else:
                 # Otherwise copy the old file over
                 temp_file.write(line)

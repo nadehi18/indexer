@@ -47,12 +47,12 @@ class Indexer():
             self.files_to_process = self.get_files_to_index()
 
             for file in self.files_to_process:
-                try:
-                    self.process_file(file)
-                    self.add_file_to_notes(file)
-                    print("Indexed \"{}\" Successfully".format(file))
-                except:
-                    print("One or more errors while processing \"{}\".  It will not be indexed.".format(file))
+            try:
+                self.process_file(file)
+                self.add_file_to_notes(file)
+                print("Indexed \"{}\" Successfully".format(file))
+            except:
+                print("One or more errors while processing \"{}\".  It will not be indexed.".format(file))
         else:
             # File was not processed correclty so exit
             print("One or more errors occurred. Exiting...")
@@ -220,13 +220,15 @@ class Indexer():
         # Iterate through and parse the file
         # Doing one operation at a time
         while(operation_number < len(self.operations)):
+            # Set the current operation to the next to do
+            op = self.operations[operation_number]
+
             # Read line from file
-            current_line = old_file.readline().strip()
+            line = old_file.readline()
+            current_line = line.strip()
 
             # Find the starting point of the operation 
             if self.settings[op + '-start'] in current_line:
-                # Set the current operation to the next to do
-                op = operations_to_do[operation_number]
                 # Set the beginnning marker
                 marker_s = self.settings[op +'-start']
                 # Set the end marker
@@ -263,7 +265,7 @@ class Indexer():
                             end_marker_found = True
 
                 # Move to the next operation
-                operation_numer += 1
+                operation_number += 1
             else:
                 # Otherwise copy the old file over
                 temp_file.write(line)
@@ -274,9 +276,6 @@ class Indexer():
 
         # Overwrite the old file with the newly updated one
         replace(temp_filename, filename)
-
-
-
 
 
 if __name__ == '__main__':

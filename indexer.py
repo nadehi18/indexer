@@ -47,12 +47,12 @@ class Indexer():
             self.files_to_process = self.get_files_to_index()
 
             for file in self.files_to_process:
-            try:
-                self.process_file(file)
-                self.add_file_to_notes(file)
-                print("Indexed \"{}\" Successfully".format(file))
-            except:
-                print("One or more errors while processing \"{}\".  It will not be indexed.".format(file))
+                try:
+                    self.process_file(file)
+                    self.add_file_to_notes(file)
+                    print("Indexed \"{}\" Successfully".format(file))
+                except:
+                    print("One or more errors while processing \"{}\".  It will not be indexed.".format(file))
         else:
             # File was not processed correclty so exit
             print("One or more errors occurred. Exiting...")

@@ -1,5 +1,5 @@
 # Indexer
-A HTML file editor and indexer for static HTML site pages.
+An editor and indexer for static HTML site pages.
 
 Scans a directory for .html files and changes certain sections of the file based on tags which are set in the config.
 Then adds a listing for those files in another html file which creates a list of links to those files.

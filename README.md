@@ -55,10 +55,10 @@ note-category-file: category.html
 Here are the main config file options:
 |Setting         | Setting Description |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------|
-|html-folder| This is the folder to find HTML files to index|
-|index-file| This is the name of the HTML file which will contain the list of links to the indexed files|
-|note-item-file| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for the item link|
-|note-category-file| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for a category which is basically an HTML separator|
+|```html-folder```| This is the folder to find HTML files to index|
+|```index-file```| This is the name of the HTML file which will contain the list of links to the indexed files|
+|```note-item-file```| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for the item link|
+|```note-category-file```| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for a category which is basically an HTML separator|
 
 Operations are defined with teh ```*OPERATION*``` keyword and confined by braces.
 Operations should be defined in order that the HTML tags will be found in the HTML file.

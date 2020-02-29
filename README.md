@@ -62,7 +62,7 @@ Here are the main config file options:
 
 Operations are defined with teh ```*OPERATION*``` keyword and confined by braces.
 Operations should be defined in order that the HTML tags will be found in the HTML file.
-Not all operation options need to be set but the "file" and "start" options must be set.
+Not all operation options need to be set but the ```file``` and ```start``` options must be set.
 
 |Setting     | Setting Description |
 |-----------------|------------------------------------------------|

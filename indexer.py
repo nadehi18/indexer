@@ -12,20 +12,8 @@ class Indexer():
         self.settings = {
             "html-folder": None, 
             "index-file": None, 
-            "html-head-file": None, 
-            "html-header-file": None, 
-            "html-footer-file": None, 
             "note-item-file": None,
             "note-category-file": None,
-            "head-enabled": None,
-            "head-start": None,
-            "head-end": None,
-            "header-enabled": None,
-            "header-start": None,
-            "header-end": None,
-            "footer-enabled": None,
-            "footer-start": None,
-            "footer-end": None
         }
         # Set which settings are essential to set
         self.essential_settings = [
@@ -34,12 +22,9 @@ class Indexer():
             "note-item-file",
             "note-category-file"
         ]
-        # A list of operations 
-        self.operations = [
-            "head",
-            "header",
-            "footer"
-        ]
+        # A list of operations
+        # Each operation is a dictionary 
+        self.operations = []
         
         # Process config file before beginnning indexing
         if(self.process_config_file()):
@@ -64,8 +49,25 @@ class Indexer():
         # Try to open the config file
         try:
             with open(self.config_file, "r") as config:
-                for line in config:
-                    if line.strip() != "":
+                line = config.readline()
+                while line:
+                    # Setting defines an operation
+                    if "*OPERATION*" in line:
+                        operation = {}
+                        # Read the operations
+                        op_setting = config.readline().strip()
+                        while op_setting.strip() != "}":
+                            # Get the first paramter which is the key
+                            key = op_setting.split(":")[0].strip()
+                            # Get the second parameter which is the value
+                            value = op_setting.split(":")[1].strip()
+                            # Add to dictionary
+                            operation[key] = value
+                            op_setting = config.readline().strip()
+                        # Add the operation to the list
+                        self.operations.append(operation)
+                    # Defines a setting
+                    elif ":" in line:
                         # Get the first paramter which is the option
                         option = line.split(":")[0].strip()
                         # Get the second parameter which is the value
@@ -74,6 +76,7 @@ class Indexer():
                         if option in self.settings:
                             # Set the setting if it is valid
                             self.settings[option] = setting
+                    line = config.readline()
         # Tell the user if the config file is not found
         except FileNotFoundError:
             print("ERROR: Config file \"{}\" not found!".format(self.config_file))
@@ -90,11 +93,6 @@ class Indexer():
                 if not self.settings[setting]:
                     print("Option \'{}\' not specified in config file! Exiting...".format(setting))
                     processed_correctly = False
-        
-        # Check which operations are enabled in the config
-        for op in self.operations:
-            if self.settings[op + '-enabled'] != "True":
-                self.operations.remove(op)
 
         # Return whether the config was properly parsed or not
         return processed_correctly
@@ -215,6 +213,7 @@ class Indexer():
         # Keep track of the current operation
         operation_number = 0
         
+        # Mark the file as indexed
         temp_file.write("<!--*INDEXED*-->\n")
 
         # Iterate through and parse the file
@@ -226,49 +225,50 @@ class Indexer():
             # Read line from file
             line = old_file.readline()
             current_line = line.strip()
+            
+            # Check if the start point exists
+            if "start" in op:
+                # Find the starting point of the operation 
+                if op["start"] in current_line:
+                    # Open the template for the operation
+                    template = open(str(self.resource_folder + op["file"]), 'r')
 
-            # Find the starting point of the operation 
-            if self.settings[op + '-start'] in current_line:
-                # Set the beginnning marker
-                marker_s = self.settings[op +'-start']
-                # Set the end marker
-                marker_e = self.settings[op +'-end']
-                # Open the template for the operation
-                template = open(str(self.resource_folder + self.settings["html-" + op + "-file"]), 'r')
+                    # Split the line off of the marker
+                    split_line = current_line.split(op["start"])
+                    # If there is text before the delimiter, copy it to the new file before the template
+                    # Then make it so there is only one line in the split_line list
+                    if len(split_line) > 1:
+                        temp_file.write(split_line[0])
+                        split_line.remove(split_line[0])
+                    # Copy the template in 
+                    for temp_line in template:
+                        temp_file.write(temp_line)
+                    
+                    # Write what came after the delimiter
+                    if split_line:
+                        temp_file.write(split_line[0])
+                    
+                    # Close the template file 
+                    template.close()
 
-                # Split the line off of the marker
-                split_line = current_line.split(marker_s)
-                # If there is text before the delimiter, copy it to the new file before the template
-                # Then make it so there is only one line in the split_line list
-                if len(split_line) > 1:
-                    temp_file.write(split_line[0])
-                    split_line.remove(split_line[0])
-                # Copy the template in 
-                for temp_line in template:
-                    temp_file.write(temp_line)
-                
-                # Write what came after the delimiter
-                if split_line:
-                    temp_file.write(split_line[0])
-                
-                # Close the template file 
-                template.close()
+                    # Check if the end marker is set for this operation
+                    if "end" in op:
+                        # Prime the loop
+                        end_marker_found = False
+                        while not end_marker_found:
+                            # Read the file until the end marker is found
+                            old_line = old_file.readline()
+                            if op["end"] in old_line:
+                                end_marker_found = True
 
-                # Check if the end marker is set for this operation
-                if marker_e:
-                    # Prime the loop
-                    end_marker_found = False
-                    while not end_marker_found:
-                        # Read the file until the end marker is found
-                        old_line = old_file.readline()
-                        if marker_e in old_line:
-                            end_marker_found = True
-
-                # Move to the next operation
-                operation_number += 1
+                    # Move to the next operation
+                    operation_number += 1
+                else:
+                    # Otherwise copy the old file over
+                    temp_file.write(line)
             else:
-                # Otherwise copy the old file over
-                temp_file.write(line)
+                # Nothing to do
+                operation_number +=1
             
         # Close the files
         old_file.close()

@@ -32,21 +32,43 @@ Here is an example of a config file:
 ```
 html-folder: note-files
 index-file: notes.html
-html-head-file: head.html
-html-header-file: header.html
-html-footer-file: footer.html
 note-item-file: item.html
 note-category-file: category.html
-head-enabled: True
-head-start: <head>
-head-end: </head>
-header-enabled: True
-header-start: <body>
-footer-enabled: True
-footer-start: </body>
+
+*OPERATION* {
+    file:  head.html
+    start: <head>
+    end:   </head>
+}
+
+*OPERATION* {
+    file:  header.html
+    start: <body>
+}
+
+*OPERATION* {
+    file:  footer.html
+    start: </body>
+}
 ```
 
-A more complete description of the config file options can be found [here](https://github.com/nadehi18/Indexer/examples/config_description.md).
+Here are the main config file options:
+|Setting         | Setting Description |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------|
+|html-folder| This is the folder to find HTML files to index|
+|index-file| This is the name of the HTML file which will contain the list of links to the indexed files|
+|note-item-file| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for the item link|
+|note-category-file| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for a category which is basically an HTML separator|
+
+Operations are defined with teh ```*OPERATION*``` keyword and confined by braces.
+Operations should be defined in order of which the HTML tags will be found in the HTML file.
+Not all operation options need to be set but the "file" and "start" options must be set.
+
+|Setting     | Setting Description |
+|-----------------|------------------------------------------------|
+| ```file``` | The filename of the HTML template to be used for the operation |
+| ```start``` | The HTML tag that will be replaced with the contents of ```file``` |
+| ```end``` | The HTML tag that allows for deletion of all text between itself and the ```start``` tag to be deleted, including the tag itself |
 
 Next, add your template HTML files into the indexer-resources/ folder.
 

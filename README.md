@@ -61,7 +61,7 @@ Here are the main config file options:
 |note-category-file| This is the name of the file (within the indexer-resources folder) which is the code to be used as the template for a category which is basically an HTML separator|
 
 Operations are defined with teh ```*OPERATION*``` keyword and confined by braces.
-Operations should be defined in order of which the HTML tags will be found in the HTML file.
+Operations should be defined in order that the HTML tags will be found in the HTML file.
 Not all operation options need to be set but the "file" and "start" options must be set.
 
 |Setting     | Setting Description |

@@ -11,6 +11,11 @@ Then adds a listing for those files in another html file which creates a list of
 
 ## Example
 
+I use this to add Boostnote exported HTML notes to my webpage.
+<img src="https://raw.githubusercontent.com/nadehi18/Indexer/master/examples/notes.png">
+
+Each note has my navigation header inserted into the file and is changed to be responsive:
+<img src="https://raw.githubusercontent.com/nadehi18/Indexer/master/examples/example_note.png">
 
 
 ## Usage

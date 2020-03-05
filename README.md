@@ -1,4 +1,9 @@
-# Indexer
+
+
+
+# Indexer 
+<img width=100px src="https://raw.githubusercontent.com/nadehi18/social-templates/master/codecard-python.png">
+
 An editor and indexer for static HTML site pages.
 
 Scans a directory for .html files and changes certain sections of the file based on tags which are set in the config.

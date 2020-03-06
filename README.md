@@ -1,4 +1,9 @@
-# Indexer
+
+
+
+# Indexer 
+<img width=100px src="https://raw.githubusercontent.com/nadehi18/social-templates/master/codecard-python.png">
+
 An editor and indexer for static HTML site pages.
 
 Scans a directory for .html files and changes certain sections of the file based on tags which are set in the config.
@@ -11,6 +16,7 @@ I use this to add Boostnote exported HTML notes to my webpage.
 
 Each note has my navigation header inserted into the file and is changed to be responsive:
 <img src="https://raw.githubusercontent.com/nadehi18/Indexer/master/examples/example_note.png">
+
 
 ## Usage
 

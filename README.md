@@ -99,3 +99,8 @@ With no options, it should output the following for every filename:
 ```
 Indexed "note-files/category-notename.html" Successfully
 ```
+
+## Updating Entries
+
+To update entries, simply re-run the program after overwriting the note file.
+The program will then re-do all the operations on that file but will not add a duplicate entry to the notes.html.

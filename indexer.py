@@ -7,6 +7,7 @@ class Indexer():
         # Get the config file and resource folders
         self.resource_folder = "indexer-resources/"
         self.config_file = self.resource_folder + "indexer.config"
+        self.index_list_file = self.resource_folder + "index-list.config"
 
         # Dictionary to keep config settings in
         self.settings = {
@@ -135,73 +136,84 @@ class Indexer():
         note_line = None
         category_line = None
 
-
-        # Assign category based on filename
-        if "-" in note_name:
-            # Pull the category from the filename based on the - char
-            split_name = note_name.split("-")
-            note_category = split_name[0]
-            note_name = split_name[1]
-            # Open and copy over the category template
-            with open(str(self.resource_folder + self.settings["note-category-file"])) as cat_file:
-                category_line = cat_file.readline()
-            # Replace the marker with the correct variable
-            category_line = category_line.replace("<!--*CATEGORYNAME*-->", note_category) + '\n'
+        # Check if the file is already in the note list
+        indexed = False
+        with open(self.index_list_file, 'r') as index_list:
+            for line in index_list:
+                if line.strip() == note_name:
+                    indexed = True
         
-        # Open and copy over the note item template
-        with open(str(self.resource_folder +self.settings["note-item-file"])) as note_file:
-            note_line = note_file.readline()
-         # Replace the markers with the correct variable 
-        note_line = note_line.replace("<!--*NOTENAME*-->", note_name).replace("<!--*NOTEURL*-->", filename) + '\n'
+        # If the file is not in the note list, then add it
+        if not indexed:
+            with open(self.index_list_file, 'a') as index_list:
+                index_list.write(note_name)
 
-        # Open the files to read and write to
-        old_index_file = open(self.settings["index-file"], "r")
-        tmp_index_filename = str(self.settings["index-file"] + '.tmp')
-        index_file = open(tmp_index_filename, "w")
+            # Assign category based on filename
+            if "-" in note_name:
+                # Pull the category from the filename based on the - char
+                split_name = note_name.split("-")
+                note_category = split_name[0]
+                note_name = split_name[1]
+                # Open and copy over the category template
+                with open(str(self.resource_folder + self.settings["note-category-file"])) as cat_file:
+                    category_line = cat_file.readline()
+                # Replace the marker with the correct variable
+                category_line = category_line.replace("<!--*CATEGORYNAME*-->", note_category) + '\n'
+            
+            # Open and copy over the note item template
+            with open(str(self.resource_folder +self.settings["note-item-file"])) as note_file:
+                note_line = note_file.readline()
+            # Replace the markers with the correct variable 
+            note_line = note_line.replace("<!--*NOTENAME*-->", note_name).replace("<!--*NOTEURL*-->", filename) + '\n'
 
-        # Iterate through the index file until the beginning of the area is found
-        start_of_edit_found = False
-        while not start_of_edit_found:
-            line = old_index_file.readline()
-            if "<!--*STARTEDIT*-->" in line:
-                start_of_edit_found = True
-            # Copy over the text from the old file into the new file
-            index_file.write(line)
+            # Open the files to read and write to
+            old_index_file = open(self.settings["index-file"], "r")
+            tmp_index_filename = str(self.settings["index-file"] + '.tmp')
+            index_file = open(tmp_index_filename, "w")
 
-        # Check if we are assigning this note to a category
-        if note_category:
-            # Search for the category
-            category_found = False
-            while not category_found:
+            # Iterate through the index file until the beginning of the area is found
+            start_of_edit_found = False
+            while not start_of_edit_found:
                 line = old_index_file.readline()
-                # The category does not exist so add it
-                if "<!--*ENDEDIT*-->" in line:
-                    index_file.write(category_line)
-                    index_file.write(note_line)
-                    index_file.write(line)
-                    category_found = True
-                # The category exists so append to it
-                elif "note-list-category" in line and note_category in line.split("</i>")[1]:
-                    index_file.write(line)
-                    index_file.write(note_line)
-                    category_found = True
-                # Keep copying over previous entries and continuing through it
-                else:
-                    index_file.write(line)
-        # Otherwise just add the entry to the general area
-        else:
-            index_file.write(note_line)
-        
-        # Copy over the rest of the file
-        for line in old_index_file:
-            index_file.write(line)
-        
-        # Close the files
-        index_file.close()
-        old_index_file.close()
+                if "<!--*STARTEDIT*-->" in line:
+                    start_of_edit_found = True
+                # Copy over the text from the old file into the new file
+                index_file.write(line)
 
-        # Replace the old index file with the newly created one
-        replace(tmp_index_filename, self.settings["index-file"])
+            # Check if we are assigning this note to a category
+            if note_category:
+                # Search for the category
+                category_found = False
+                while not category_found:
+                    line = old_index_file.readline()
+                    # The category does not exist so add it
+                    if "<!--*ENDEDIT*-->" in line:
+                        index_file.write(category_line)
+                        index_file.write(note_line)
+                        index_file.write(line)
+                        category_found = True
+                    # The category exists so append to it
+                    elif "note-list-category" in line and note_category in line.split("</i>")[1]:
+                        index_file.write(line)
+                        index_file.write(note_line)
+                        category_found = True
+                    # Keep copying over previous entries and continuing through it
+                    else:
+                        index_file.write(line)
+            # Otherwise just add the entry to the general area
+            else:
+                index_file.write(note_line)
+            
+            # Copy over the rest of the file
+            for line in old_index_file:
+                index_file.write(line)
+            
+            # Close the files
+            index_file.close()
+            old_index_file.close()
+
+            # Replace the old index file with the newly created one
+            replace(tmp_index_filename, self.settings["index-file"])
 
     def process_file(self, filename):
 
